@@ -54,9 +54,8 @@ var jogo = {
          * O primeiro parâmetro é o inicio, aqui '0', ou seja, sempre a partir do primeiro char.
          * O segundo define o fim, que é justamente o tamanho do valor digitado.
          */
-        var comparavel = frase.substr(0 , digitado.length);
-
         /*
+        var comparavel = frase.substr(0 , digitado.length);
         if(digitado == comparavel) {
             campo.addClass("borda-verde").removeClass("borda-vermelha");
         } else {
@@ -75,8 +74,6 @@ var jogo = {
 
         campo.toggleClass("borda-verde", ehCorreto);
         campo.toggleClass("borda-vermelha", !ehCorreto);
-
-        var ehCorreto = frase.startsWith(digitado);
     },
     inicializarCronometro : () => {
         var tempoRestante = $("#tempo-digitacao").text();
