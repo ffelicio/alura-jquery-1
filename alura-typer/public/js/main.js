@@ -4,7 +4,7 @@ var botaoReiniciar = $("#botao-reiniciar");
 
 $(function() {
     jogo.atualizarTamanhoFrase();
-    jogo.inicializarContadores();
+    jogo.inputJogador();
     jogo.inicializarCronometro();
     botaoReiniciar.click(jogo.reiniciarJogo);
 });
@@ -16,26 +16,67 @@ var jogo = {
         var tamanhoFrase = $("#tamanho-frase");
         tamanhoFrase.text(numPalavras);
     },
-    inicializarContadores : () => {
+    inputJogador : () => {
         /**
          * O evento 'input' mapeia tudo que o usuário está digitando.
          */
         campo.on("input", function() {
-            var conteudo = campo.val();
+            jogo.inicializarContadores();
 
-            /**
-             * Para contar mais precisamente temos que utilizar uma expressão regular no lugar do espaço vazio,
-             * uma expressão regular que busca qualquer caractere, exceto espaço vazio, essa expressão é mostrada abaixo.
-             *
-             * Agora os espaços não são mais considerados como palavras, mas a contagem sempre mostra a quantidade de palavras mais uma,
-             * para resolver isso vamos subtrair um do length do conteúdo.
-             */
-            var qtdPalavras = conteudo.split(/\S+/).length;
-            $("#contador-palavras").text(qtdPalavras);
-    
-            var qtdCaracteres = conteudo.length;
-            $("#contador-caracteres").text(qtdCaracteres);
+            jogo.compararTextoDigitado();
         });
+    },
+    inicializarContadores : () => {
+        var conteudo = campo.val();
+
+        /**
+         * Para contar mais precisamente temos que utilizar uma expressão regular no lugar do espaço vazio,
+         * uma expressão regular que busca qualquer caractere, exceto espaço vazio, essa expressão é mostrada abaixo.
+         *
+         * Agora os espaços não são mais considerados como palavras, mas a contagem sempre mostra a quantidade de palavras mais uma,
+         * para resolver isso vamos subtrair um do length do conteúdo.
+         */
+        var qtdPalavras = conteudo.split(/\S+/).length - 1;
+        $("#contador-palavras").text(qtdPalavras);
+
+        var qtdCaracteres = conteudo.length;
+        $("#contador-caracteres").text(qtdCaracteres);
+    },
+    compararTextoDigitado : () => {
+        var frase = $(".frase").text();
+        var digitado = campo.val();
+
+        /**
+         * Para saber se o jogador está certo ou não, vamos pegar apenas a parte inicial da frase que possui a mesma quantidade do valor
+         * digitado.
+         * Isso pode ser feito pela função 'substr' (sub-string):
+         * A função substr devolve uma outra string com o tamanho definido nos parâmetros.
+         * O primeiro parâmetro é o inicio, aqui '0', ou seja, sempre a partir do primeiro char.
+         * O segundo define o fim, que é justamente o tamanho do valor digitado.
+         */
+        var comparavel = frase.substr(0 , digitado.length);
+
+        /*
+        if(digitado == comparavel) {
+            campo.addClass("borda-verde").removeClass("borda-vermelha");
+        } else {
+            campo.addClass("borda-vermelha").removeClass("borda-verde");
+        }
+        */
+
+        /**
+         * A verificação abaixo faz a mesma ação que foi adicionada acima, mas no campo está sendo utilizado o 'toogleClass'.
+         * A função mencionada recebe um segundo parâmetro para informar se sempre será adicionado (2º parâmetro com o valor 'true'),
+         * ou sempre será removido (2º parâmetro com o valor 'false').
+         */
+        // var ehCorreto = (digitado == comparavel); // Comparação ECMA 5
+
+        var ehCorreto = frase.startsWith(digitado); // Comparação ECMA 6
+
+        campo.toggleClass("borda-verde", ehCorreto);
+        campo.toggleClass("borda-vermelha", !ehCorreto);
+
+        var ehCorreto = frase.startsWith(digitado);
     },
     inicializarCronometro : () => {
         var tempoRestante = $("#tempo-digitacao").text();
@@ -75,6 +116,14 @@ var jogo = {
                     campo.attr("disabled", true);
 
                     /**
+                     * Essa ação de adicionar e remover classes se tornou uma tarefa tão comum, que o jQuery criou uma função
+                     * específica para isso, a 'toggleClass'.
+                     * Ela funciona da seguinte maneira, se no momento que a função for chamada, o elemento possuir a classe,
+                     * ela será removida. Mas se o elemento não possuir a classe, ela será adicionada.
+                     */
+                    campo.toggleClass('campo-desativado');
+
+                    /**
                      * A função abaixo serve para parar a execução da função 'setInterval'.
                      * Ela recebe como argumento, o id da função 'setInterval'.
                      */
@@ -86,8 +135,12 @@ var jogo = {
         });
     },
     reiniciarJogo : () => {
-        campo.attr("disabled", false);
-        campo.val("");
+        campo.attr("disabled", false)
+             .toggleClass('campo-desativado')
+             .removeClass('borda-verde')
+             .removeClass('borda-vermelha')
+             .val('');
+
         $("#contador-palavras").text("0");
         $("#contador-caracteres").text("0");
         $("#tempo-digitacao").text(tempoInicial);
