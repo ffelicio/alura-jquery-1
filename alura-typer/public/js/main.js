@@ -6,7 +6,7 @@ $(function() {
     jogo.atualizarTamanhoFrase();
     jogo.inputJogador();
     jogo.inicializarCronometro();
-    botaoReiniciar.click(jogo.reiniciarJogo);
+    botaoReiniciar.click(jogo.reiniciar);
 });
 
 var jogo = {
@@ -106,32 +106,37 @@ var jogo = {
                 // Verifica se o tempo acabou para poder desabilitar o textarea.
                 if (tempoRestante < 1) {
                     /**
-                     * Abaixo é utilizada a função 'attr'. Ela serve para resgatar alguma propriedade ou setar algum valor no campo.
-                     * Exemplo de resgate do atributo 'rows': campo.attr("rows");
-                     * Exemplo de alteração no atributo 'rows' do textarea: campo.attr("rows", 500);
-                     */
-                    campo.attr("disabled", true);
-
-                    /**
-                     * Essa ação de adicionar e remover classes se tornou uma tarefa tão comum, que o jQuery criou uma função
-                     * específica para isso, a 'toggleClass'.
-                     * Ela funciona da seguinte maneira, se no momento que a função for chamada, o elemento possuir a classe,
-                     * ela será removida. Mas se o elemento não possuir a classe, ela será adicionada.
-                     */
-                    campo.toggleClass('campo-desativado');
-
-                    /**
                      * A função abaixo serve para parar a execução da função 'setInterval'.
                      * Ela recebe como argumento, o id da função 'setInterval'.
                      */
                     clearInterval(cronometroID);
 
-                    botaoReiniciar.removeAttr('disabled');
+                    jogo.finalizar();
                 }
             }, 1000);
         });
     },
-    reiniciarJogo : () => {
+    finalizar : () => {
+        /**
+         * Abaixo é utilizada a função 'attr'. Ela serve para resgatar alguma propriedade ou setar algum valor no campo.
+         * Exemplo de resgate do atributo 'rows': campo.attr("rows");
+         * Exemplo de alteração no atributo 'rows' do textarea: campo.attr("rows", 500);
+         */
+        campo.attr("disabled", true);
+
+        /**
+         * Essa ação de adicionar e remover classes se tornou uma tarefa tão comum, que o jQuery criou uma função
+         * específica para isso, a 'toggleClass'.
+         * Ela funciona da seguinte maneira, se no momento que a função for chamada, o elemento possuir a classe,
+         * ela será removida. Mas se o elemento não possuir a classe, ela será adicionada.
+         */
+        campo.toggleClass('campo-desativado');
+
+        botaoReiniciar.removeAttr('disabled');
+
+        placar.inserir();
+    },
+    reiniciar : () => {
         campo.attr("disabled", false)
              .toggleClass('campo-desativado')
              .removeClass('borda-verde')
